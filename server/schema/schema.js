@@ -22,7 +22,7 @@ const ProjectType = new GraphQLObjectType({
     name: { type: GraphQLString },
     description: { type: GraphQLString },
     status: { type: GraphQLString },
-    client: {
+    clientId: {
       type: ClientType,
       resolve(parent, args) {
         return Client.findById(parent.clientId);
@@ -83,13 +83,25 @@ const rootMutation = new GraphQLObjectType({
       args: {
         name: { type: new GraphQLNonNull(GraphQLString) },
         description: { type: new GraphQLNonNull(GraphQLString) },
-        status: { type: new GraphQLNonNull(GraphQLString) },
+        status: {
+          type: new GraphQLEnumType({
+            name: "ProjectStatus",
+            values: {
+              NOT_STARTED: { value: "Not Started", description: "Not Started" },
+              IN_PROGRESS: { value: "In Progress", description: "In Progress" },
+              COMPLETED: { value: "Completed", description: "Completed" },
+            },
+            defaultValue: "Not Started",
+          }),
+        },
+        clientId: { type: new GraphQLNonNull(GraphQLID) },
       },
       resolve(parent, args) {
         const project = new Project({
           name: args.name,
           description: args.description,
           status: args.status,
+          clientId: args.clientId,
         });
         return project.save();
       },
@@ -101,6 +113,31 @@ const rootMutation = new GraphQLObjectType({
       args: { id: { type: new GraphQLNonNull(GraphQLID) } },
       resolve(parent, args) {
         return Project.findByIdAndDelete(args.id);
+      },
+    },
+
+    // Update a project in the database
+    updateProject: {
+      type: ProjectType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
+        name: { type: GraphQLString },
+        description: { type: GraphQLString },
+        status: {
+          type: new GraphQLEnumType({
+            name: "ProjectStatusUpdate",
+            values: {
+              NOT_STARTED: { value: "Not Started", description: "Not Started" },
+              IN_PROGRESS: { value: "In Progress", description: "In Progress" },
+              COMPLETED: { value: "Completed", description: "Completed" },
+            },
+          }),
+        },
+        clientId: { type: GraphQLID },
+      },
+
+      resolve(parent, args) {
+        return Project.findByIdAndUpdate(args.id, args, { new: true });
       },
     },
 
@@ -128,6 +165,20 @@ const rootMutation = new GraphQLObjectType({
       args: { id: { type: new GraphQLNonNull(GraphQLID) } },
       resolve(parent, args) {
         return Client.findByIdAndDelete(args.id);
+      },
+    },
+
+    // Update a client in the database
+    updateClient: {
+      type: ClientType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
+        name: { type: GraphQLString },
+        email: { type: GraphQLString },
+        phone: { type: GraphQLString },
+      },
+      resolve(parent, args) {
+        return Client.findByIdAndUpdate(args.id, args, { new: true });
       },
     },
   },
