@@ -181,6 +181,7 @@ const rootMutation = new GraphQLObjectType({
         return Client.findByIdAndUpdate(args.id, args, { new: true });
       },
     },
+    
   },
 });
 
