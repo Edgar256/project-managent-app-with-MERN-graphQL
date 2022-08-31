@@ -16,7 +16,6 @@ export default function AddClientsModal() {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log(name, email, phone);
     if (!name || !email || !phone) {
       return alert("Please fill in all fields");
     }
@@ -31,7 +30,7 @@ export default function AddClientsModal() {
     <>
       <button
         type="button"
-        className="btn btn-primary mb-4"
+        className="btn btn-primary mr-2"
         data-bs-target="#addClientModal"
         data-bs-toggle="modal"
       >
